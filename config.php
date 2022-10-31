@@ -1,29 +1,54 @@
 <?php
 
-// Configura PHP para UTF-8:
+// PHP em UTF-8:
 header('Content-Type: text/html; charset=utf-8');
 
-// Define o fuso horário para "horário de Brasília":
+// Fuso horário de Brasília:
 date_default_timezone_set('America/Sao_Paulo');
 
-// Dados de conexão com MySQL no XAMPP:
+// Inicializa variáveis do aplicativo:
+$page_content = '';
+
+// Configurações de acesso ao banco de dados:
 $hostname = 'localhost';
 $username = 'root';
 $password = '';
 $database = 'mulherestech';
 
-// Conexão com o MySQL e banco de dados:
+// Conexão com o banco de dados:
 $conn = new mysqli($hostname, $username, $password, $database);
 
-// TESTE → Lendo dados do db:
-$sql = "SELECT aid, title, resume, thumbnail FROM articles";
+// Seta transações com MySQL/MariaDB para UTF-8:
+$conn->query("SET NAMES 'utf8'");
+$conn->query('SET character_set_connection=utf8');
+$conn->query('SET character_set_client=utf8');
+$conn->query('SET character_set_results=utf8');
 
-// Executa a query:
-$res = $conn->query($sql);
+// Seta dias da semana e meses do MySQL/MariaDB para "português do Brasil":
+$conn->query('SET GLOBAL lc_time_names = pt_BR');
+$conn->query('SET lc_time_names = pt_BR');
 
-// Loop para receber cada registro:
-while ($art = $res->fetch_assoc()) {
+// Função de uso geral para DEBUG:
+function debug($variable, $exit = true, $dump = false)
+{
+    echo '<pre>';
+    if ($dump) var_dump($variable);
+    else print_r($variable);
+    echo '</pre>';
+    if ($exit) die();
+};
 
-    print_r ($art);
+/**
+ * Converte uma data para outro formato:
+ * Exemplos:
+ *      dt_convert('2022-10-31');
+ *      dt_convert('2022-10-31', 'd/m/Y');
+ *      dt_convert('31-10-2022', 'Y-m-d');
+ *      dt_convert('31/10/2022 12:34:59', 'Y-m-d H:i');
+ */
+function dt_convert($date, $format = 'Y-m-d H:i:s')
+{
+    $date = str_replace('/', '-', $date);
+    $d = date_create($date);
+    return date_format($d, $format);
 }
-?>
